@@ -1,0 +1,23 @@
+server.js
+  s_00f11816e25802::t_79a8331974466d 152,162-164,174-183
+src/i18n/language.ts
+  s_00f11816e25802::t_758c7cc987e038 33
+src/App.tsx
+  s_00f11816e25802::t_758c7cc987e038 47-51,68-69,72-76
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "f632f0786cf8e16e1ff6939416baa8e4f3699088",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

@@ -69,7 +69,7 @@ export const en = {
   },
   about: {
     title: 'About Tokcat',
-    version: 'Tokcat — version {{version}}',
+    version: '<product>Tokcat</product> — version {{version}}',
     description: 'Native macOS menubar dashboard for local AI token usage.',
   },
   limits: {

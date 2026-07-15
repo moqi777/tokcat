@@ -64,7 +64,7 @@ export const zhCN: DictionaryShape<typeof en> = {
   },
   about: {
     title: '关于 Tokcat',
-    version: 'Tokcat — 版本 {{version}}',
+    version: '<product>Tokcat</product> — 版本 {{version}}',
     description: '本地 AI Token 用量的原生 macOS 菜单栏仪表盘。',
   },
   limits: {

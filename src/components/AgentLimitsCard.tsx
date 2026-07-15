@@ -21,7 +21,6 @@ interface LimitRow {
   label: string
   usedPercent?: number
   remainingPercent?: number
-  resetText?: string
   resetsAt?: string
   monthlyCap?: MonthlyCap
 }
@@ -120,8 +119,8 @@ export function AgentLimitsCard({ clients, trace, agentUsage, title, note }: Pro
                           limit: formatCurrencyMinorUnits(row.monthlyCap.limitMinorUnits, row.monthlyCap.currency, locale),
                         })
                       : null
-                    const detail = monthlyCap ?? (relative ? t('limits.resets', { relative }) : row.resetText) ?? left
-                    const showLeft = Boolean(monthlyCap || relative || row.resetText)
+                    const detail = monthlyCap ?? (relative ? t('limits.resets', { relative }) : left)
+                    const showLeft = Boolean(monthlyCap || relative)
                     return (
                       <div className="limit-window" key={`${row.kind}:${row.label}`}>
                         <div className="limit-window-meta">

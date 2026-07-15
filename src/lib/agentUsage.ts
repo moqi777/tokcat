@@ -9,7 +9,6 @@ export interface UsageWindow {
   usedPercent: number
   remainingPercent: number
   resetsAt?: string
-  resetText?: string
   monthlyCap?: MonthlyCap
 }
 

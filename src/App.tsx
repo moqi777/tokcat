@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
 import { Panel } from './components/Panel'
 import { HeaderBar } from './components/HeaderBar'
 import { StreaksCard } from './components/StreaksCard'
@@ -598,7 +598,13 @@ export default function App() {
               <button className="settings-close" onClick={() => setAboutOpen(false)} aria-label={t('common.close')}>×</button>
             </div>
             <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-              <div>{t('about.version', { version: appVersion || t('common.unknown') })}</div>
+              <div>
+                <Trans
+                  i18nKey="about.version"
+                  values={{ version: appVersion || t('common.unknown') }}
+                  components={{ product: <strong /> }}
+                />
+              </div>
               <div style={{ marginTop: 8 }}>
                 {t('about.description')}
               </div>

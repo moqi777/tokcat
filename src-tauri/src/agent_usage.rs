@@ -47,7 +47,6 @@ pub struct UsageWindow {
     used_percent: f64,
     remaining_percent: f64,
     resets_at: Option<String>,
-    reset_text: Option<String>,
     monthly_cap: Option<MonthlyCap>,
 }
 
@@ -358,7 +357,6 @@ async fn fetch_codex_inner() -> Result<AgentUsageSnapshot, String> {
     let windows = codex_windows(
         usage.rate_limit.as_ref(),
         usage.additional_rate_limits.as_deref(),
-        now,
     );
     if windows.is_empty() && usage.credits.as_ref().and_then(|c| c.balance).is_none() {
         return Err("Codex usage API returned no rate-limit windows.".to_string());
@@ -440,7 +438,7 @@ async fn fetch_claude_inner() -> Result<AgentUsageSnapshot, String> {
     let usage: ClaudeUsageResponse =
         serde_json::from_str(&body).map_err(|e| format!("decode Claude usage response: {}", e))?;
     let now = Utc::now();
-    let windows = claude_windows(&usage, now);
+    let windows = claude_windows(&usage);
     if windows.is_empty() {
         return Err("Claude usage API returned no rate-limit windows.".to_string());
     }
@@ -735,7 +733,6 @@ fn save_codex_credentials(credentials: &CodexCredentials) -> Result<(), String> 
 fn codex_windows(
     rate_limit: Option<&CodexRateLimit>,
     additional_rate_limits: Option<&[CodexAdditionalRateLimit]>,
-    now: DateTime<Utc>,
 ) -> Vec<UsageWindow> {
     let mut windows = Vec::new();
     if let Some(rate_limit) = rate_limit {
@@ -746,10 +743,10 @@ fn codex_windows(
         }
 
         if let Some(window) = primary {
-            windows.push(map_window("session", "Session", window, now));
+            windows.push(map_window("session", "Session", window));
         }
         if let Some(window) = secondary {
-            windows.push(map_window("weekly", "Weekly", window, now));
+            windows.push(map_window("weekly", "Weekly", window));
         }
     }
 
@@ -770,27 +767,36 @@ fn codex_windows(
         };
         let label = additional_limit_label(extra);
         if seen.insert(label.clone()) {
-            windows.push(map_window("dynamic", &label, window, now));
+            windows.push(map_window("dynamic", &label, window));
         }
     }
     windows
 }
 
-fn claude_windows(usage: &ClaudeUsageResponse, now: DateTime<Utc>) -> Vec<UsageWindow> {
+fn claude_windows(usage: &ClaudeUsageResponse) -> Vec<UsageWindow> {
     let mut windows = Vec::new();
-    push_claude_window(&mut windows, "session", "Session", usage.five_hour.as_ref(), now);
-    push_claude_window(&mut windows, "weekly", "Weekly", usage.seven_day.as_ref(), now);
+    push_claude_window(&mut windows, "session", "Session", usage.five_hour.as_ref());
+    push_claude_window(&mut windows, "weekly", "Weekly", usage.seven_day.as_ref());
     push_claude_window(
         &mut windows,
         "oauth_apps",
         "OAuth Apps",
         usage.seven_day_oauth_apps.as_ref(),
-        now,
     );
-    push_claude_window(&mut windows, "sonnet", "Sonnet", usage.seven_day_sonnet.as_ref(), now);
-    push_claude_window(&mut windows, "opus", "Opus", usage.seven_day_opus.as_ref(), now);
-    push_claude_window(&mut windows, "designs", "Designs", usage.design_window(), now);
-    push_claude_window(&mut windows, "daily_routines", "Daily Routines", usage.routines_window(), now);
+    push_claude_window(
+        &mut windows,
+        "sonnet",
+        "Sonnet",
+        usage.seven_day_sonnet.as_ref(),
+    );
+    push_claude_window(&mut windows, "opus", "Opus", usage.seven_day_opus.as_ref());
+    push_claude_window(&mut windows, "designs", "Designs", usage.design_window());
+    push_claude_window(
+        &mut windows,
+        "daily_routines",
+        "Daily Routines",
+        usage.routines_window(),
+    );
     if let Some(extra) = claude_extra_usage_window(usage.extra_usage.as_ref()) {
         windows.push(extra);
     }
@@ -834,19 +840,13 @@ fn push_claude_window(
     kind: &str,
     label: &str,
     window: Option<&ClaudeWindow>,
-    now: DateTime<Utc>,
 ) {
-    if let Some(mapped) = window.and_then(|window| map_claude_window(kind, label, window, now)) {
+    if let Some(mapped) = window.and_then(|window| map_claude_window(kind, label, window)) {
         windows.push(mapped);
     }
 }
 
-fn map_claude_window(
-    kind: &str,
-    label: &str,
-    window: &ClaudeWindow,
-    now: DateTime<Utc>,
-) -> Option<UsageWindow> {
+fn map_claude_window(kind: &str, label: &str, window: &ClaudeWindow) -> Option<UsageWindow> {
     let used = window.utilization?.clamp(0.0, 100.0);
     let resets_at = window.resets_at.as_deref().and_then(parse_datetime);
     Some(UsageWindow {
@@ -855,7 +855,6 @@ fn map_claude_window(
         used_percent: used,
         remaining_percent: (100.0 - used).max(0.0),
         resets_at: resets_at.map(|date| date.to_rfc3339_opts(SecondsFormat::Millis, true)),
-        reset_text: resets_at.map(|date| reset_text(date, now)),
         monthly_cap: None,
     })
 }
@@ -893,7 +892,6 @@ fn claude_extra_usage_window(extra: Option<&ClaudeExtraUsage>) -> Option<UsageWi
         used_percent: used.clamp(0.0, 100.0),
         remaining_percent: (100.0 - used).max(0.0),
         resets_at: None,
-        reset_text: None,
         monthly_cap,
     })
 }
@@ -955,7 +953,7 @@ fn clean_limit_label(value: &str) -> String {
         .join(" ")
 }
 
-fn map_window(kind: &str, label: &str, window: CodexWindow, now: DateTime<Utc>) -> UsageWindow {
+fn map_window(kind: &str, label: &str, window: CodexWindow) -> UsageWindow {
     let resets_at = if window.reset_at > 0 {
         Utc.timestamp_opt(window.reset_at, 0).single()
     } else {
@@ -968,7 +966,6 @@ fn map_window(kind: &str, label: &str, window: CodexWindow, now: DateTime<Utc>) 
         used_percent: used,
         remaining_percent: (100.0 - used).max(0.0),
         resets_at: resets_at.map(|date| date.to_rfc3339_opts(SecondsFormat::Millis, true)),
-        reset_text: resets_at.map(|date| reset_text(date, now)),
         monthly_cap: None,
     }
 }
@@ -978,32 +975,6 @@ fn role(window: Option<&CodexWindow>) -> Option<&'static str> {
         18_000 => Some("session"),
         604_800 => Some("weekly"),
         _ => None,
-    }
-}
-
-fn reset_text(reset: DateTime<Utc>, now: DateTime<Utc>) -> String {
-    let seconds = (reset - now).num_seconds();
-    if seconds <= 0 {
-        return "Resets now".to_string();
-    }
-    let minutes = (seconds + 59) / 60;
-    if minutes < 60 {
-        return format!("Resets in {}m", minutes);
-    }
-    let hours = minutes / 60;
-    let mins = minutes % 60;
-    if hours < 48 {
-        if mins > 0 {
-            return format!("Resets in {}h {}m", hours, mins);
-        }
-        return format!("Resets in {}h", hours);
-    }
-    let days = hours / 24;
-    let rem_hours = hours % 24;
-    if rem_hours > 0 {
-        format!("Resets in {}d {}h", days, rem_hours)
-    } else {
-        format!("Resets in {}d", days)
     }
 }
 
@@ -1200,7 +1171,6 @@ mod tests {
 
     #[test]
     fn maps_codex_primary_and_secondary_windows() {
-        let now = Utc.timestamp_opt(1_700_000_000, 0).single().unwrap();
         let rate_limit = CodexRateLimit {
             primary_window: Some(CodexWindow {
                 used_percent: 8.0,
@@ -1213,7 +1183,7 @@ mod tests {
                 limit_window_seconds: 604_800,
             }),
         };
-        let windows = codex_windows(Some(&rate_limit), None, now);
+        let windows = codex_windows(Some(&rate_limit), None);
         assert_eq!(windows.len(), 2);
         assert_eq!(windows[0].label, "Session");
         assert_eq!(windows[0].remaining_percent, 92.0);
@@ -1223,7 +1193,6 @@ mod tests {
 
     #[test]
     fn maps_codex_additional_model_limits() {
-        let now = Utc.timestamp_opt(1_700_000_000, 0).single().unwrap();
         let extra = CodexAdditionalRateLimit {
             limit_name: Some("gpt-5.2-codex-spark".to_string()),
             metered_feature: None,
@@ -1236,7 +1205,7 @@ mod tests {
                 secondary_window: None,
             }),
         };
-        let windows = codex_windows(None, Some(&[extra]), now);
+        let windows = codex_windows(None, Some(&[extra]));
         assert_eq!(windows.len(), 1);
         assert_eq!(windows[0].label, "Codex Spark");
         assert_eq!(windows[0].remaining_percent, 59.0);
@@ -1263,7 +1232,6 @@ mod tests {
 
     #[test]
     fn maps_claude_oauth_windows() {
-        let now = Utc.timestamp_opt(1_700_000_000, 0).single().unwrap();
         let usage = ClaudeUsageResponse {
             five_hour: Some(ClaudeWindow {
                 utilization: Some(8.0),
@@ -1287,7 +1255,7 @@ mod tests {
             extra_usage: None,
             ..Default::default()
         };
-        let windows = claude_windows(&usage, now);
+        let windows = claude_windows(&usage);
         assert_eq!(windows.len(), 4);
         assert_eq!(windows[0].label, "Session");
         assert_eq!(windows[0].remaining_percent, 92.0);
@@ -1310,8 +1278,7 @@ mod tests {
             "seven_day_cowork": { "utilization": 0, "resets_at": null }
         }"#;
         let usage: ClaudeUsageResponse = serde_json::from_str(raw).unwrap();
-        let now = Utc.timestamp_opt(1_700_000_000, 0).single().unwrap();
-        let windows = claude_windows(&usage, now);
+        let windows = claude_windows(&usage);
         assert_eq!(
             windows.iter().map(|w| w.label.as_str()).collect::<Vec<_>>(),
             vec!["Session", "Weekly", "Sonnet", "Designs", "Daily Routines"]

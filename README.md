@@ -264,7 +264,7 @@ npm run tauri:dev       # opens the menubar app with Vite HMR on :4061
 npm run tauri:build     # production .app + .dmg in src-tauri/target/release/bundle
 ```
 
-The `dev` script runs the web frontend in a browser at `http://localhost:4061` against a small Express + Vite server (`server.js`) with a mock graph payload. Use `pnpm tauri:dev` when you need the native backend to read real local usage logs.
+The `dev` script runs the web frontend in a browser at `http://localhost:4061` against a small Express + Vite server (`server.js`) with a mock graph payload. Use `npm run tauri:dev` when you need the native backend to read real local usage logs.
 
 <details>
 <summary><strong>Releasing a new version</strong></summary>

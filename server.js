@@ -149,6 +149,7 @@ function mockGraph(year) {
 
 function mockAgentUsage() {
   const now = new Date().toISOString()
+  const resetsIn = minutes => new Date(Date.now() + minutes * 60_000).toISOString()
   return {
     generatedAt: now,
     agents: [
@@ -158,9 +159,9 @@ function mockAgentUsage() {
         updatedAt: now,
         identity: { email: 'dev@tokcat.local', plan: 'Team' },
         windows: [
-          { label: 'Session', usedPercent: 63, remainingPercent: 37, resetText: 'resets in 2h 14m' },
-          { label: 'Weekly', usedPercent: 41, remainingPercent: 59, resetText: 'resets Tue' },
-          { label: 'gpt-5.2-codex', usedPercent: 72, remainingPercent: 28, resetText: 'resets in 5h' },
+          { kind: 'session', label: 'Session', usedPercent: 63, remainingPercent: 37, resetsAt: resetsIn(134) },
+          { kind: 'weekly', label: 'Weekly', usedPercent: 41, remainingPercent: 59, resetsAt: resetsIn(4_320) },
+          { kind: 'dynamic', label: 'gpt-5.2-codex', usedPercent: 72, remainingPercent: 28, resetsAt: resetsIn(300) },
         ],
         credits: { remaining: 118.42, unlimited: false },
       },
@@ -170,9 +171,16 @@ function mockAgentUsage() {
         updatedAt: now,
         identity: { plan: 'Max' },
         windows: [
-          { label: '5-hour', usedPercent: 78, remainingPercent: 22, resetText: 'resets in 37m' },
-          { label: '7-day', usedPercent: 54, remainingPercent: 46, resetText: 'resets Fri' },
-          { label: 'Opus', usedPercent: 34, remainingPercent: 66, resetText: 'resets Fri' },
+          { kind: 'session', label: 'Session', usedPercent: 78, remainingPercent: 22, resetsAt: resetsIn(37) },
+          { kind: 'weekly', label: 'Weekly', usedPercent: 54, remainingPercent: 46, resetsAt: resetsIn(5_760) },
+          { kind: 'opus', label: 'Opus', usedPercent: 34, remainingPercent: 66, resetsAt: resetsIn(5_760) },
+          {
+            kind: 'extra_usage',
+            label: 'Extra usage',
+            usedPercent: 25,
+            remainingPercent: 75,
+            monthlyCap: { currentMinorUnits: 2_500, limitMinorUnits: 10_000, currency: 'USD' },
+          },
         ],
         credits: { unlimited: true },
       },

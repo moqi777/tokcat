@@ -30,6 +30,5 @@ function getBrowserLanguages(): readonly string[] {
 
 function isSimplifiedChinese(language: string): boolean {
   const normalized = language.trim().replaceAll('_', '-').toLowerCase()
-  if (!normalized.startsWith('zh')) return false
-  return !/-(tw|hk|mo|hant)(-|$)/.test(normalized)
+  return normalized === 'zh' || normalized.startsWith('zh-')
 }

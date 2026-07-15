@@ -44,6 +44,11 @@ function defaultYear(): string {
   return String(new Date().getFullYear())
 }
 
+function browserLanguages(): readonly string[] {
+  if (typeof navigator === 'undefined') return []
+  return navigator.languages?.length ? Array.from(navigator.languages) : [navigator.language]
+}
+
 export default function App() {
   const { t } = useTranslation()
   const [year, setYear] = useState<string>(defaultYear())
@@ -60,8 +65,15 @@ export default function App() {
   const [usageView, setUsageView] = useState<UsageView>(() => loadUsageView())
   const [settings, setSettings] = useState<Settings>(() => loadSettings())
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const resolvedLanguage = resolveLanguage(settings.language)
+  const [systemLanguages, setSystemLanguages] = useState<readonly string[]>(browserLanguages)
+  const resolvedLanguage = resolveLanguage(settings.language, systemLanguages)
   const locale = localeForLanguage(resolvedLanguage)
+
+  useEffect(() => {
+    const update = () => setSystemLanguages(browserLanguages())
+    window.addEventListener('languagechange', update)
+    return () => window.removeEventListener('languagechange', update)
+  }, [])
 
   useEffect(() => {
     void setResolvedLanguage(resolvedLanguage)

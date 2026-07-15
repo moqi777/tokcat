@@ -106,7 +106,7 @@ Orthographic isometric projection with orbit controls and persistent camera stat
 
 ### Menubar settings
 
-A native System Settings-styled panel for the menu-bar title, animated tray icon, launch-at-login, Live session detail, and one-click update check. The dashboard header also includes a theme picker, refresh button, and year selector.
+A native System Settings-styled panel for app language, the menu-bar title, animated tray icon, launch-at-login, Live session detail, and one-click update check. Choose Follow System, English, or Simplified Chinese; the React dashboard and native tray menu switch immediately. The dashboard header also includes a theme picker, refresh button, and year selector.
 
 <p align="center">
   <img src="docs/screenshots/settings.png" alt="Tokcat Settings panel" width="640" />
@@ -136,6 +136,7 @@ Pick between two styles in Settings: the spinning cat or a party parrot. During 
 | **Native vibrancy + glassmorphism** | Transparent window with macOS `sidebar` `NSVisualEffectView`; light/dark auto via `prefers-color-scheme`. |
 | **Menubar popover behavior** | Chromeless window, drag region on the header, auto-hides when focus leaves the app. |
 | **Theme picker** | Blue, Purple, Pink, Orange, Green, and Graphite palettes persist locally and adapt to light/dark mode. |
+| **English + Simplified Chinese** | Follow the macOS language or switch languages instantly; dashboard text, native tray menus, dates, numbers, quota resets, and update prompts stay in sync. |
 | **Settings panel** | macOS System Settings-styled preferences with switch toggles, sectioned groups, version info, and one-click update check. |
 | **In-app updater** | Signed releases via Tauri updater. Silent check on launch and every 30 minutes; manual check from Settings or the tray menu. |
 | **Launch at login** | Tauri autostart plugin — opt-in via Settings. |
@@ -167,6 +168,7 @@ After installation, launch **Tokcat** from `/Applications`. Click the cat in the
 
 | Setting | Effect |
 |---|---|
+| Language | Follow System, English, or 简体中文. Changes apply immediately to the dashboard and native tray menu. |
 | Menubar title | What the menu-bar text shows next to the icon, including the live tokens/min option. |
 | Launch at login | Starts Tokcat automatically when you log in (Tauri autostart). |
 | Animate tray icon | Spinning cat or party parrot animation that reflects token velocity. |
@@ -257,9 +259,9 @@ If installed via Homebrew: `brew uninstall --cask tokcat`. If installed via DMG:
 ```sh
 git clone https://github.com/handlecusion/tokcat.git
 cd tokcat
-pnpm install            # or: npm install
-pnpm tauri:dev          # opens the menubar app with Vite HMR on :4061
-pnpm tauri:build        # production .app + .dmg in src-tauri/target/release/bundle
+npm install
+npm run tauri:dev       # opens the menubar app with Vite HMR on :4061
+npm run tauri:build     # production .app + .dmg in src-tauri/target/release/bundle
 ```
 
 The `dev` script runs the web frontend in a browser at `http://localhost:4061` against a small Express + Vite server (`server.js`) with a mock graph payload. Use `pnpm tauri:dev` when you need the native backend to read real local usage logs.

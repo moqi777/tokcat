@@ -1,0 +1,37 @@
+src/App.tsx
+  s_00f11816e25802::t_a750f22f1b1191 2,21-22,48,63-67,491-492
+src/i18n/locales/zh-CN.ts
+  s_00f11816e25802::t_3191b009d1b1c6 1-44
+package-lock.json
+  ai_agent 3,9,19,22,4539-4546,4577-4603,5380-5405,6176,6329-6334
+src/lib/settings.ts
+  s_00f11816e25802::t_3191b009d1b1c6 3,15,30,51,64-70
+src/i18n/locales/en.ts
+  s_00f11816e25802::t_3191b009d1b1c6 1-49
+src/i18n/index.ts
+  s_00f11816e25802::t_3191b009d1b1c6 1-27
+src/i18n/language.ts
+  s_00f11816e25802::t_3191b009d1b1c6 1-35
+src/main.tsx
+  s_00f11816e25802::t_3191b009d1b1c6 4
+package.json
+  s_00f11816e25802::t_3191b009d1b1c6 12,31,34
+src/components/SettingsPanel.tsx
+  s_00f11816e25802::t_a750f22f1b1191 2,7,9,52,148-149,156-180,192-194,204,207,220,223,240,250,253,264,267,278,281,286,292,302
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "e2410ca474a69b0b2010a6c739c4d72e5b36c1d8",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

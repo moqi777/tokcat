@@ -1,0 +1,30 @@
+src/i18n/locales/zh-CN.ts
+  s_00f11816e25802::t_55fd0385eff844 73-95
+src-tauri/src/agent_usage.rs
+  s_00f11816e25802::t_b898d95a1903d9 45,51-59,749,752,773,781-782,785,790-793,834,839,845,853,859,877-887,891,896-897,958,966,972
+src/lib/format.ts
+  s_00f11816e25802::t_55fd0385eff844 20-51
+src/components/AgentLimitsCard.tsx
+  s_00f11816e25802::t_f75a5138aaae04 2-3
+  s_00f11816e25802::t_f79d31a367dd08 5,7-8,19,24-25,29-31,34-38,65-68,79-80,83,91,93,114-127,129,131-132,143,157-162,164-165
+src/i18n/locales/en.ts
+  s_00f11816e25802::t_55fd0385eff844 78-100
+src/lib/agentUsage.ts
+  s_00f11816e25802::t_55fd0385eff844 7,13-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "4d6b4569c5a0192422ad0db2e775de75f3396eab",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

@@ -6,7 +6,7 @@ import type { Contribution, Stats, TokenBreakdown, UsagePayload } from '../lib/t
 import type { GridLayout } from '../lib/grid'
 import { ContributionGraph3D } from './ContributionGraph3D'
 import { TokenUsageCard } from './TokenUsageCard'
-import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
+import { useAppLocale } from '../i18n/useAppLocale'
 
 export type UsageView = '2d' | '3d'
 
@@ -96,9 +96,8 @@ export function UsageBarGraph2D({
   stats,
   kbdHints,
 }: Props) {
-  const { t, i18n } = useTranslation()
-  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
-  const locale = localeForLanguage(language)
+  const { t } = useTranslation()
+  const { locale } = useAppLocale()
   const [hover, setHover] = useState<HoverState | null>(null)
   const headSubtitle = stats && view === '3d' ? t('dashboard.fullYear') : subtitle
   const bars = useMemo(() => {

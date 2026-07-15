@@ -2,7 +2,6 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import { humanizeTokens } from '../lib/format'
 import { THEMES } from '../lib/themes'
-import type { ResolvedLanguage } from '../i18n/language'
 
 interface Props {
   totalTokens: number
@@ -18,8 +17,8 @@ interface Props {
 }
 
 export function HeaderBar({ totalTokens, year, years, onYearChange, theme, onThemeChange, onRefresh, onOpenSettings, kbdHints, refreshing }: Props) {
-  const { t, i18n } = useTranslation()
-  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
+  const { t } = useTranslation()
+  const yearFirst = t('header.layout') === 'yearFirst'
   const yearSelect = (
     <select className="year-select" value={year} onChange={e => onYearChange(e.target.value)}>
       {years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -31,10 +30,10 @@ export function HeaderBar({ totalTokens, year, years, onYearChange, theme, onThe
       <div className="header-brand" data-tauri-drag-region>
         <img className="brand-logo" src="/tokcat-logo.png" alt="" aria-hidden="true" data-tauri-drag-region />
         <div className="header-title" data-tauri-drag-region>
-          {language === 'zh-CN' ? (
-            <>{yearSelect}<span className="header-text" data-tauri-drag-region> {t('header.tokensUsedInYear')} </span>{tokenValue}<span className="header-text" data-tauri-drag-region> Token</span></>
+          {yearFirst ? (
+            <>{yearSelect}<span className="header-text" data-tauri-drag-region> {t('header.connector')} </span>{tokenValue}<span className="header-text" data-tauri-drag-region> Token</span></>
           ) : (
-            <>{tokenValue}<span className="header-text" data-tauri-drag-region> {t('header.tokensUsedIn')} </span>{yearSelect}</>
+            <>{tokenValue}<span className="header-text" data-tauri-drag-region> {t('header.connector')} </span>{yearSelect}</>
           )}
         </div>
       </div>

@@ -6,7 +6,7 @@ import { OrthographicCamera, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import type { GridLayout } from '../lib/grid'
 import { formatCost, formatMonthDay, humanizeTokens } from '../lib/format'
-import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
+import { useAppLocale } from '../i18n/useAppLocale'
 
 interface Props {
   grid: GridLayout
@@ -63,9 +63,8 @@ function saveCam(s: CamState) {
 }
 
 export function ContributionGraph3D({ grid, activeLight = '#bfdbfe', activeDark = '#1e3a8a', accent = '#2563eb' }: Props) {
-  const { t, i18n } = useTranslation()
-  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
-  const locale = localeForLanguage(language)
+  const { t } = useTranslation()
+  const { locale } = useAppLocale()
   const [hover, setHover] = useState<HoverInfo | null>(null)
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const controlsRef = useRef<any | null>(null)

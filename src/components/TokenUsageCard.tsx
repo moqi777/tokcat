@@ -2,12 +2,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Stats } from '../lib/types'
 import { formatCost, formatMMDD, formatMonthDay, humanizeTokens } from '../lib/format'
-import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
+import { useAppLocale } from '../i18n/useAppLocale'
 
 export function TokenUsageCard({ stats, bare = false }: { stats: Stats; bare?: boolean }) {
-  const { t, i18n } = useTranslation()
-  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
-  const locale = localeForLanguage(language)
+  const { t } = useTranslation()
+  const { locale } = useAppLocale()
   const range = `${formatMMDD(stats.dateRange.start, locale)} → ${formatMMDD(stats.dateRange.end, locale)}`
   const grid = (
     <div className={`usage-row-card${bare ? ' is-bare' : ''}`}>

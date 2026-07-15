@@ -5,7 +5,8 @@ import { clientInitial, getClientStyle } from '../lib/clients'
 import type { AgentUsagePayload, AgentUsageSnapshot, MonthlyCap } from '../lib/agentUsage'
 import type { TraceBucket } from '../lib/usage'
 import { formatCurrencyMinorUnits, formatRelativeReset } from '../lib/format'
-import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
+import { useAppLocale } from '../i18n/useAppLocale'
+import { en } from '../i18n/locales/en'
 
 interface Props {
   clients: string[]
@@ -31,10 +32,7 @@ const LIMIT_ROWS: Record<string, LimitRow[]> = {
   gemini: [{ kind: 'pro', label: 'Pro' }, { kind: 'flash', label: 'Flash' }],
 }
 
-const KNOWN_WINDOW_KINDS = new Set([
-  'session', 'weekly', 'oauth_apps', 'sonnet', 'opus', 'designs',
-  'daily_routines', 'extra_usage', 'pro', 'flash', 'generic_limit',
-])
+const KNOWN_WINDOW_KINDS = new Set(Object.keys(en.limits.window))
 
 function normalizeTraceClient(id: string): string {
   if (id === 'claude-code') return 'claude'
@@ -63,9 +61,8 @@ function mark(id: string) {
 }
 
 export function AgentLimitsCard({ clients, trace, agentUsage, title, note }: Props) {
-  const { t, i18n } = useTranslation()
-  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
-  const locale = localeForLanguage(language)
+  const { t } = useTranslation()
+  const { locale } = useAppLocale()
   const liveClients = new Set(trace.filter(t => t.tokens_per_min > 0).map(t => normalizeTraceClient(t.client)))
   const snapshots = new Map((agentUsage?.agents ?? []).map(agent => [agent.clientId, agent]))
   const visibleClients = Array.from(new Set([

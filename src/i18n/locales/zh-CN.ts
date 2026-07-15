@@ -13,8 +13,8 @@ export const zhCN: DictionaryShape<typeof en> = {
     reset: '重置',
   },
   header: {
-    tokensUsedIn: 'Token 使用于',
-    tokensUsedInYear: '年共使用',
+    layout: 'yearFirst',
+    connector: '年共使用',
     theme: '主题',
   },
   dashboard: {

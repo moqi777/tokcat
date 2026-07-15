@@ -18,8 +18,8 @@ export const en = {
     reset: 'Reset',
   },
   header: {
-    tokensUsedIn: 'tokens used in',
-    tokensUsedInYear: 'tokens used',
+    layout: 'numberFirst',
+    connector: 'tokens used in',
     theme: 'Theme',
   },
   dashboard: {

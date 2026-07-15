@@ -1,7 +1,11 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
+import type { TFunction } from 'i18next'
 import { clientInitial, getClientStyle } from '../lib/clients'
-import type { AgentUsagePayload, AgentUsageSnapshot } from '../lib/agentUsage'
+import type { AgentUsagePayload, AgentUsageSnapshot, MonthlyCap } from '../lib/agentUsage'
 import type { TraceBucket } from '../lib/usage'
+import { formatCurrencyMinorUnits, formatRelativeReset } from '../lib/format'
+import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
 
 interface Props {
   clients: string[]
@@ -12,17 +16,25 @@ interface Props {
 }
 
 interface LimitRow {
+  kind: string
   label: string
   usedPercent?: number
   remainingPercent?: number
   resetText?: string
+  resetsAt?: string
+  monthlyCap?: MonthlyCap
 }
 
 const LIMIT_ROWS: Record<string, LimitRow[]> = {
-  codex: [{ label: 'Session' }, { label: 'Weekly' }],
-  claude: [{ label: 'Session' }, { label: 'Weekly' }],
-  gemini: [{ label: 'Pro' }, { label: 'Flash' }],
+  codex: [{ kind: 'session', label: 'Session' }, { kind: 'weekly', label: 'Weekly' }],
+  claude: [{ kind: 'session', label: 'Session' }, { kind: 'weekly', label: 'Weekly' }],
+  gemini: [{ kind: 'pro', label: 'Pro' }, { kind: 'flash', label: 'Flash' }],
 }
+
+const KNOWN_WINDOW_KINDS = new Set([
+  'session', 'weekly', 'oauth_apps', 'sonnet', 'opus', 'designs',
+  'daily_routines', 'extra_usage', 'pro', 'flash', 'generic_limit',
+])
 
 function normalizeTraceClient(id: string): string {
   if (id === 'claude-code') return 'claude'
@@ -50,7 +62,10 @@ function mark(id: string) {
   )
 }
 
-export function AgentLimitsCard({ clients, trace, agentUsage, title = 'Agent limits', note = 'OAuth quota' }: Props) {
+export function AgentLimitsCard({ clients, trace, agentUsage, title, note }: Props) {
+  const { t, i18n } = useTranslation()
+  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
+  const locale = localeForLanguage(language)
   const liveClients = new Set(trace.filter(t => t.tokens_per_min > 0).map(t => normalizeTraceClient(t.client)))
   const snapshots = new Map((agentUsage?.agents ?? []).map(agent => [agent.clientId, agent]))
   const visibleClients = Array.from(new Set([
@@ -61,11 +76,11 @@ export function AgentLimitsCard({ clients, trace, agentUsage, title = 'Agent lim
   return (
     <div className="limits-card">
       <div className="limits-head">
-        <h2 className="limits-title">{title}</h2>
-        <span className="limits-note">{note}</span>
+        <h2 className="limits-title">{title ?? t('limits.defaultTitle')}</h2>
+        <span className="limits-note">{note ?? t('limits.oauthQuota')}</span>
       </div>
       {visibleClients.length === 0 ? (
-        <div className="limits-empty">No supported agents yet</div>
+        <div className="limits-empty">{t('limits.empty')}</div>
       ) : (
         <div className={`limits-list${visibleClients.length === 1 ? ' is-single' : ''}`}>
           {visibleClients.map(id => {
@@ -73,9 +88,9 @@ export function AgentLimitsCard({ clients, trace, agentUsage, title = 'Agent lim
             const snapshot = snapshots.get(id)
             const rows = snapshot?.windows.length
               ? snapshot.windows
-              : LIMIT_ROWS[id] ?? [{ label: 'Limit' }]
+              : LIMIT_ROWS[id] ?? [{ kind: 'generic_limit', label: 'Limit' }]
             const isLive = liveClients.has(id)
-            const status = statusText(snapshot, isLive)
+            const status = statusText(snapshot, isLive, t)
             return (
               <div className="limit-agent" key={id}>
                 <div className="limit-agent-head">
@@ -96,12 +111,25 @@ export function AgentLimitsCard({ clients, trace, agentUsage, title = 'Agent lim
                   {rows.map(row => {
                     const remaining = 'remainingPercent' in row ? row.remainingPercent : undefined
                     const fill = remaining ?? 0
-                    const left = remaining === undefined ? 'No data' : `${Math.max(0, remaining).toFixed(0)}% left`
+                    const percent = remaining === undefined
+                      ? null
+                      : new Intl.NumberFormat(locale, { style: 'percent', maximumFractionDigits: 0 })
+                        .format(Math.max(0, remaining) / 100)
+                    const left = percent === null ? t('limits.noData') : t('limits.percentLeft', { percent })
+                    const relative = row.resetsAt ? formatRelativeReset(row.resetsAt, locale) : null
+                    const monthlyCap = row.monthlyCap
+                      ? t('limits.monthlyCap', {
+                          current: formatCurrencyMinorUnits(row.monthlyCap.currentMinorUnits, row.monthlyCap.currency, locale),
+                          limit: formatCurrencyMinorUnits(row.monthlyCap.limitMinorUnits, row.monthlyCap.currency, locale),
+                        })
+                      : null
+                    const detail = monthlyCap ?? (relative ? t('limits.resets', { relative }) : row.resetText) ?? left
+                    const showLeft = Boolean(monthlyCap || relative || row.resetText)
                     return (
-                      <div className="limit-window" key={row.label}>
+                      <div className="limit-window" key={`${row.kind}:${row.label}`}>
                         <div className="limit-window-meta">
-                          <span>{row.label}</span>
-                          <span>{row.resetText || left}</span>
+                          <span>{windowLabel(row, t)}</span>
+                          <span>{detail}</span>
                         </div>
                         <div className="limit-bar">
                           <div
@@ -112,7 +140,7 @@ export function AgentLimitsCard({ clients, trace, agentUsage, title = 'Agent lim
                             }}
                           />
                         </div>
-                        {row.resetText && <div className="limit-window-left">{left}</div>}
+                        {showLeft && <div className="limit-window-left">{left}</div>}
                       </div>
                     )
                   })}
@@ -126,9 +154,13 @@ export function AgentLimitsCard({ clients, trace, agentUsage, title = 'Agent lim
   )
 }
 
-function statusText(snapshot: AgentUsageSnapshot | undefined, isLive: boolean): string {
-  if (snapshot?.error) return 'Error'
+function windowLabel(row: LimitRow, t: TFunction): string {
+  return KNOWN_WINDOW_KINDS.has(row.kind) ? t(`limits.window.${row.kind}`) : row.label
+}
+
+function statusText(snapshot: AgentUsageSnapshot | undefined, isLive: boolean, t: TFunction): string {
+  if (snapshot?.error) return t('limits.error')
   if (snapshot?.windows.length) return snapshot.source.toUpperCase()
-  if (isLive) return 'Live'
-  return 'No quota'
+  if (isLive) return t('limits.live')
+  return t('limits.noQuota')
 }

@@ -4,11 +4,19 @@ export interface AgentIdentity {
 }
 
 export interface UsageWindow {
+  kind: string
   label: string
   usedPercent: number
   remainingPercent: number
   resetsAt?: string
   resetText?: string
+  monthlyCap?: MonthlyCap
+}
+
+export interface MonthlyCap {
+  currentMinorUnits: number
+  limitMinorUnits: number
+  currency: string
 }
 
 export interface CreditsSnapshot {

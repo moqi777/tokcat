@@ -17,6 +17,38 @@ export function formatExactTokens(n: number, locale = 'en-US'): string {
   return new Intl.NumberFormat(locale).format(n)
 }
 
+export function formatCurrencyMinorUnits(
+  value: number,
+  currency: string,
+  locale = 'en-US',
+): string {
+  const code = currency.trim().toUpperCase() || 'USD'
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value / 100)
+  } catch {
+    return `${new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value / 100)} ${code}`
+  }
+}
+
+export function formatRelativeReset(resetsAt: string, locale = 'en-US', now = new Date()): string | null {
+  const reset = new Date(resetsAt)
+  if (Number.isNaN(reset.getTime())) return null
+  const seconds = (reset.getTime() - now.getTime()) / 1000
+  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  if (seconds <= 0) return formatter.format(0, 'second')
+  if (seconds < 3600) return formatter.format(Math.ceil(seconds / 60), 'minute')
+  if (seconds < 172800) return formatter.format(Math.ceil(seconds / 3600), 'hour')
+  return formatter.format(Math.ceil(seconds / 86400), 'day')
+}
+
 // Parse YYYY-MM-DD as local date (avoid TZ shift)
 export function parseISODate(s: string): Date {
   const [y, m, d] = s.split('-').map(Number)

@@ -42,11 +42,21 @@ pub struct AgentIdentity {
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UsageWindow {
+    kind: String,
     label: String,
     used_percent: f64,
     remaining_percent: f64,
     resets_at: Option<String>,
     reset_text: Option<String>,
+    monthly_cap: Option<MonthlyCap>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MonthlyCap {
+    current_minor_units: f64,
+    limit_minor_units: f64,
+    currency: String,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -736,10 +746,10 @@ fn codex_windows(
         }
 
         if let Some(window) = primary {
-            windows.push(map_window("Session", window, now));
+            windows.push(map_window("session", "Session", window, now));
         }
         if let Some(window) = secondary {
-            windows.push(map_window("Weekly", window, now));
+            windows.push(map_window("weekly", "Weekly", window, now));
         }
     }
 
@@ -760,7 +770,7 @@ fn codex_windows(
         };
         let label = additional_limit_label(extra);
         if seen.insert(label.clone()) {
-            windows.push(map_window(&label, window, now));
+            windows.push(map_window("dynamic", &label, window, now));
         }
     }
     windows
@@ -768,18 +778,19 @@ fn codex_windows(
 
 fn claude_windows(usage: &ClaudeUsageResponse, now: DateTime<Utc>) -> Vec<UsageWindow> {
     let mut windows = Vec::new();
-    push_claude_window(&mut windows, "Session", usage.five_hour.as_ref(), now);
-    push_claude_window(&mut windows, "Weekly", usage.seven_day.as_ref(), now);
+    push_claude_window(&mut windows, "session", "Session", usage.five_hour.as_ref(), now);
+    push_claude_window(&mut windows, "weekly", "Weekly", usage.seven_day.as_ref(), now);
     push_claude_window(
         &mut windows,
+        "oauth_apps",
         "OAuth Apps",
         usage.seven_day_oauth_apps.as_ref(),
         now,
     );
-    push_claude_window(&mut windows, "Sonnet", usage.seven_day_sonnet.as_ref(), now);
-    push_claude_window(&mut windows, "Opus", usage.seven_day_opus.as_ref(), now);
-    push_claude_window(&mut windows, "Designs", usage.design_window(), now);
-    push_claude_window(&mut windows, "Daily Routines", usage.routines_window(), now);
+    push_claude_window(&mut windows, "sonnet", "Sonnet", usage.seven_day_sonnet.as_ref(), now);
+    push_claude_window(&mut windows, "opus", "Opus", usage.seven_day_opus.as_ref(), now);
+    push_claude_window(&mut windows, "designs", "Designs", usage.design_window(), now);
+    push_claude_window(&mut windows, "daily_routines", "Daily Routines", usage.routines_window(), now);
     if let Some(extra) = claude_extra_usage_window(usage.extra_usage.as_ref()) {
         windows.push(extra);
     }
@@ -820,16 +831,18 @@ impl ClaudeUsageResponse {
 
 fn push_claude_window(
     windows: &mut Vec<UsageWindow>,
+    kind: &str,
     label: &str,
     window: Option<&ClaudeWindow>,
     now: DateTime<Utc>,
 ) {
-    if let Some(mapped) = window.and_then(|window| map_claude_window(label, window, now)) {
+    if let Some(mapped) = window.and_then(|window| map_claude_window(kind, label, window, now)) {
         windows.push(mapped);
     }
 }
 
 fn map_claude_window(
+    kind: &str,
     label: &str,
     window: &ClaudeWindow,
     now: DateTime<Utc>,
@@ -837,11 +850,13 @@ fn map_claude_window(
     let used = window.utilization?.clamp(0.0, 100.0);
     let resets_at = window.resets_at.as_deref().and_then(parse_datetime);
     Some(UsageWindow {
+        kind: kind.to_string(),
         label: label.to_string(),
         used_percent: used,
         remaining_percent: (100.0 - used).max(0.0),
         resets_at: resets_at.map(|date| date.to_rfc3339_opts(SecondsFormat::Millis, true)),
         reset_text: resets_at.map(|date| reset_text(date, now)),
+        monthly_cap: None,
     })
 }
 
@@ -859,20 +874,27 @@ fn claude_extra_usage_window(extra: Option<&ClaudeExtraUsage>) -> Option<UsageWi
             None
         }
     })?;
-    let reset_text = match (extra.used_credits, extra.monthly_limit) {
-        (Some(used), Some(limit)) => Some(format!(
-            "Monthly cap: {} / {}",
-            format_currency_minor_units(used, extra.currency.as_deref()),
-            format_currency_minor_units(limit, extra.currency.as_deref())
-        )),
+    let monthly_cap = match (extra.used_credits, extra.monthly_limit) {
+        (Some(current_minor_units), Some(limit_minor_units)) => Some(MonthlyCap {
+            current_minor_units,
+            limit_minor_units,
+            currency: extra
+                .currency
+                .as_deref()
+                .unwrap_or("USD")
+                .trim()
+                .to_uppercase(),
+        }),
         _ => None,
     };
     Some(UsageWindow {
+        kind: "extra_usage".to_string(),
         label: "Extra usage".to_string(),
         used_percent: used.clamp(0.0, 100.0),
         remaining_percent: (100.0 - used).max(0.0),
         resets_at: None,
-        reset_text,
+        reset_text: None,
+        monthly_cap,
     })
 }
 
@@ -889,15 +911,6 @@ fn claude_credits(extra: Option<&ClaudeExtraUsage>) -> Option<CreditsSnapshot> {
         remaining,
         unlimited: false,
     })
-}
-
-fn format_currency_minor_units(value: f64, currency: Option<&str>) -> String {
-    let major = value / 100.0;
-    match currency.unwrap_or("USD").trim().to_uppercase().as_str() {
-        "USD" => format!("${:.2}", major),
-        code if !code.is_empty() => format!("{:.2} {}", major, code),
-        _ => format!("${:.2}", major),
-    }
 }
 
 fn additional_limit_label(limit: &CodexAdditionalRateLimit) -> String {
@@ -942,7 +955,7 @@ fn clean_limit_label(value: &str) -> String {
         .join(" ")
 }
 
-fn map_window(label: &str, window: CodexWindow, now: DateTime<Utc>) -> UsageWindow {
+fn map_window(kind: &str, label: &str, window: CodexWindow, now: DateTime<Utc>) -> UsageWindow {
     let resets_at = if window.reset_at > 0 {
         Utc.timestamp_opt(window.reset_at, 0).single()
     } else {
@@ -950,11 +963,13 @@ fn map_window(label: &str, window: CodexWindow, now: DateTime<Utc>) -> UsageWind
     };
     let used = window.used_percent.clamp(0.0, 100.0);
     UsageWindow {
+        kind: kind.to_string(),
         label: label.to_string(),
         used_percent: used,
         remaining_percent: (100.0 - used).max(0.0),
         resets_at: resets_at.map(|date| date.to_rfc3339_opts(SecondsFormat::Millis, true)),
         reset_text: resets_at.map(|date| reset_text(date, now)),
+        monthly_cap: None,
     }
 }
 

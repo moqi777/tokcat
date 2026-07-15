@@ -1,0 +1,42 @@
+src/components/FilterChips.tsx
+  s_00f11816e25802::t_8ea8cbea820207 2,12,15
+src/components/UsageTraceCard.tsx
+  s_00f11816e25802::t_8ea8cbea820207 2,59-60,70,72,76
+src/App.tsx
+  s_00f11816e25802::t_f09586466d57c6 21,64,388,397,514-515,530,540-541,546-547,575-576,579,581
+src/lib/settings.ts
+  s_00f11816e25802::t_82dd8156cce5eb 77,86,90
+src/components/StreaksCard.tsx
+  s_00f11816e25802::t_8ea8cbea820207 2,10,13,16-17,20-21
+src/i18n/locales/zh-CN.ts
+  s_00f11816e25802::t_82dd8156cce5eb 7-8,11-64
+  s_00f11816e25802::t_f09586466d57c6 66-68
+src/components/DashboardTabs.tsx
+  s_00f11816e25802::t_8ea8cbea820207 2,32,37,51
+src/lib/format.ts
+  s_00f11816e25802::t_82dd8156cce5eb 9-13,16-18,26,28,31,33
+src/components/HeaderBar.tsx
+  s_00f11816e25802::t_8ea8cbea820207 43-44
+  s_00f11816e25802::t_82dd8156cce5eb 2,5,21-28,34-38,42,48,59
+src/components/TokenUsageCard.tsx
+  s_00f11816e25802::t_8ea8cbea820207 2,5,8-11,15-16,21-22,25-27,34
+src/i18n/locales/en.ts
+  s_00f11816e25802::t_f09586466d57c6 71-73
+  s_00f11816e25802::t_82dd8156cce5eb 12-13,16-69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "389f40723a27319571bde3fddcf003f1cb988568",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

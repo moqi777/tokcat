@@ -1,0 +1,30 @@
+src/components/AgentLimitsCard.tsx
+  s_00f11816e25802::t_17665158d63c09 122-123
+src-tauri/src/agent_usage.rs
+  s_00f11816e25802::t_17665158d63c09 441,746,749,770,776,778-779,792-793,844,956,1186,1208,1258,1281
+  s_00f11816e25802::t_ed02a6e6adfa55 786-791,794-799,849
+src/App.tsx
+  s_00f11816e25802::t_17665158d63c09 2,601-607
+src/i18n/locales/en.ts
+  s_00f11816e25802::t_17665158d63c09 72
+README.md
+  s_00f11816e25802::t_17665158d63c09 267
+src/i18n/locales/zh-CN.ts
+  s_00f11816e25802::t_17665158d63c09 67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "257ebec47aeade35246b2b7b15a94a5de2cc18b7",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

@@ -371,6 +371,7 @@ pub fn run() {
                 .build(),
         )
         .manage(state.clone())
+        .manage(tray::TrayMenuState::default())
         .invoke_handler(tauri::generate_handler![
             get_graph,
             refresh_graph,
@@ -385,7 +386,8 @@ pub fn run() {
             get_tokens_per_min,
             get_agent_usage,
             set_popover_height,
-            tray::update_tray_title
+            tray::update_tray_title,
+            tray::set_app_language
         ]);
 
     builder = builder.setup(move |app| {

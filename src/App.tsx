@@ -67,6 +67,16 @@ export default function App() {
     void setResolvedLanguage(resolvedLanguage)
   }, [resolvedLanguage])
 
+  useEffect(() => {
+    if (!isTauri()) return
+    ;(async () => {
+      try {
+        const { invoke } = await import('@tauri-apps/api/core')
+        await invoke('set_app_language', { language: resolvedLanguage })
+      } catch {}
+    })()
+  }, [resolvedLanguage])
+
   const [aboutOpen, setAboutOpen] = useState(false)
   const [appVersion, setAppVersion] = useState('')
   // True while the Cmd key is held — drives the translucent shortcut-hint pins

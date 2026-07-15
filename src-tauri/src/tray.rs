@@ -5,6 +5,91 @@ use tauri::{
     AppHandle, Emitter, LogicalPosition, Manager, PhysicalPosition, PhysicalSize, Runtime,
     WebviewWindow,
 };
+use parking_lot::Mutex;
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+enum AppLanguage {
+    #[default]
+    En,
+    ZhCn,
+}
+
+impl AppLanguage {
+    fn parse(value: &str) -> Self {
+        match value {
+            "zh-CN" => Self::ZhCn,
+            _ => Self::En,
+        }
+    }
+
+    fn strings(self) -> TrayStrings {
+        match self {
+            Self::En => TrayStrings {
+                open: "Open Tokcat",
+                settings: "Settings…",
+                refresh: "Refresh Now",
+                about: "About Tokcat",
+                check_updates: "Check for Updates…",
+                quit: "Quit Tokcat",
+            },
+            Self::ZhCn => TrayStrings {
+                open: "打开 Tokcat",
+                settings: "设置…",
+                refresh: "立即刷新",
+                about: "关于 Tokcat",
+                check_updates: "检查更新…",
+                quit: "退出 Tokcat",
+            },
+        }
+    }
+}
+
+struct TrayStrings {
+    open: &'static str,
+    settings: &'static str,
+    refresh: &'static str,
+    about: &'static str,
+    check_updates: &'static str,
+    quit: &'static str,
+}
+
+struct TrayMenuItems {
+    show: MenuItem<tauri::Wry>,
+    settings: MenuItem<tauri::Wry>,
+    refresh: MenuItem<tauri::Wry>,
+    about: MenuItem<tauri::Wry>,
+    check_update: MenuItem<tauri::Wry>,
+    quit: MenuItem<tauri::Wry>,
+}
+
+#[derive(Default)]
+pub struct TrayMenuState {
+    items: Mutex<Option<TrayMenuItems>>,
+}
+
+impl TrayMenuState {
+    fn set_items(&self, items: TrayMenuItems) {
+        *self.items.lock() = Some(items);
+    }
+
+    fn set_language(&self, language: AppLanguage) -> Result<(), String> {
+        let guard = self.items.lock();
+        let Some(items) = guard.as_ref() else {
+            return Err("tray menu is not initialized".to_string());
+        };
+        let strings = language.strings();
+        items.show.set_text(strings.open).map_err(|e| e.to_string())?;
+        items.settings.set_text(strings.settings).map_err(|e| e.to_string())?;
+        items.refresh.set_text(strings.refresh).map_err(|e| e.to_string())?;
+        items.about.set_text(strings.about).map_err(|e| e.to_string())?;
+        items
+            .check_update
+            .set_text(strings.check_updates)
+            .map_err(|e| e.to_string())?;
+        items.quit.set_text(strings.quit).map_err(|e| e.to_string())?;
+        Ok(())
+    }
+}
 
 pub const POPOVER_W: f64 = 640.0;
 pub const POPOVER_DEFAULT_H: f64 = 620.0;
@@ -13,7 +98,7 @@ pub const POPOVER_MAX_H: f64 = 1200.0;
 pub const POPOVER_SCREEN_MARGIN: f64 = 8.0;
 const POPOVER_TRAY_GAP: f64 = 6.0;
 
-pub fn setup<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
+pub fn setup(app: &AppHandle) -> tauri::Result<()> {
     let show = MenuItem::with_id(app, "show", "Open Tokcat", true, None::<&str>)?;
     let settings = MenuItem::with_id(app, "settings", "Settings…", true, Some("Cmd+,"))?;
     let refresh = MenuItem::with_id(app, "refresh", "Refresh Now", true, Some("Cmd+R"))?;
@@ -95,10 +180,26 @@ pub fn setup<R: Runtime>(app: &AppHandle<R>) -> tauri::Result<()> {
             }
         })
         .build(app)?;
+    app.state::<TrayMenuState>().set_items(TrayMenuItems {
+        show,
+        settings,
+        refresh,
+        about,
+        check_update,
+        quit,
+    });
     if let Some(w) = app.get_webview_window("main") {
         prepare_popover_window(&w);
     }
     Ok(())
+}
+
+#[tauri::command]
+pub fn set_app_language(
+    language: String,
+    menu_state: tauri::State<'_, TrayMenuState>,
+) -> Result<(), String> {
+    menu_state.set_language(AppLanguage::parse(&language))
 }
 
 /// Hide the popover and hand keyboard focus back to the app that was in front

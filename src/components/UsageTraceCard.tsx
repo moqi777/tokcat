@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { TraceBucket } from '../lib/usage'
 import { humanizeTokens } from '../lib/format'
 
@@ -55,7 +56,8 @@ function collapseByClient(buckets: TraceBucket[]): TraceBucket[] {
   }).sort((a, b) => b.tokens - a.tokens)
 }
 
-export function UsageTraceCard({ buckets, windowSecs, detailed, title = 'Live trace' }: Props) {
+export function UsageTraceCard({ buckets, windowSecs, detailed, title }: Props) {
+  const { t } = useTranslation()
   const rows = detailed ? buckets : collapseByClient(buckets)
   const top = rows.slice(0, 5)
   const max = top.reduce((m, b) => Math.max(m, b.tokens_per_min), 0)
@@ -65,13 +67,13 @@ export function UsageTraceCard({ buckets, windowSecs, detailed, title = 'Live tr
   return (
     <div className="trace-card">
       <div className="trace-head">
-        <h2 className="trace-heading">{title}</h2>
+        <h2 className="trace-heading">{title ?? t('trace.title')}</h2>
         <div className="trace-sub">
-          last {windowMin}m · {humanizeTokens(Math.round(totalRate))}/m total
+          {t('trace.summary', { minutes: windowMin, rate: humanizeTokens(Math.round(totalRate)) })}
         </div>
       </div>
       {top.length === 0 ? (
-        <div className="trace-empty">No activity in this window</div>
+        <div className="trace-empty">{t('trace.empty')}</div>
       ) : (
         <div className="trace-rows">
           {top.map(b => {

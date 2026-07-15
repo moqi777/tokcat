@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { clientInitial, getClientStyle } from '../lib/clients'
 
 interface Props {
@@ -28,11 +29,12 @@ function ClientMark({ id }: { id: string }) {
 }
 
 export function DashboardTabs({ clients, active, onChange, kbdHints }: Props) {
+  const { t } = useTranslation()
   // ⌘1 = Overview, ⌘2… = clients, matching the keyboard handler in App. Only
   // the first nine tabs get a hint since ⌘0 is unbound.
   const hint = (idx: number) => (kbdHints && idx < 9 ? `⌘${idx + 1}` : null)
   return (
-    <div className="dash-tabs" role="tablist" aria-label="Dashboard sections">
+    <div className="dash-tabs" role="tablist" aria-label={t('dashboard.sections')}>
       <button
         type="button"
         className={`dash-tab${active === 'overview' ? ' is-active' : ''}`}
@@ -46,7 +48,7 @@ export function DashboardTabs({ clients, active, onChange, kbdHints }: Props) {
           <span />
           <span />
         </span>
-        <span>Overview</span>
+        <span>{t('dashboard.overview')}</span>
         {hint(0) && <span className="kbd-pin" aria-hidden="true">{hint(0)}</span>}
       </button>
       {clients.map((id, i) => {

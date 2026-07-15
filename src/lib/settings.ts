@@ -74,6 +74,7 @@ export function computeTrayTitle(
   mode: TrayMode,
   stats: Stats | null,
   tokensPerMin: number | null = null,
+  locale = 'en-US',
 ): string {
   if (mode === 'hidden' || !stats) return ''
   const today = isoDate(new Date())
@@ -82,11 +83,11 @@ export function computeTrayTitle(
     case 'today_tokens':
       return todayEntry ? humanizeTokens(todayEntry.tokens) : '0'
     case 'today_cost':
-      return todayEntry ? formatCost(todayEntry.cost) : '$0.00'
+      return todayEntry ? formatCost(todayEntry.cost, locale) : formatCost(0, locale)
     case 'total_tokens':
       return humanizeTokens(stats.totalTokens)
     case 'total_cost':
-      return formatCost(stats.totalCost)
+      return formatCost(stats.totalCost, locale)
     case 'tokens_per_min':
       if (tokensPerMin === null) return '—/m'
       return `${humanizeTokens(Math.max(0, Math.round(tokensPerMin)))}/m`

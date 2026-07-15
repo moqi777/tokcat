@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import { getClientStyle, clientInitial } from '../lib/clients'
 
 interface Props {
@@ -8,9 +9,10 @@ interface Props {
 }
 
 export function FilterChips({ presentClients, selected, onToggle }: Props) {
+  const { t } = useTranslation()
   return (
     <div className="filter-row">
-      <span className="filter-label">Filter:</span>
+      <span className="filter-label">{t('filters.label')}</span>
       <div className="chip-row">
         {presentClients.map(id => {
           const style = getClientStyle(id)

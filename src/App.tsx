@@ -18,7 +18,7 @@ import { UsageTraceCard } from './components/UsageTraceCard'
 import { checkForUpdatesSilent, checkForUpdatesInteractive } from './lib/updater'
 import { getTheme, THEMES, ThemeName } from './lib/themes'
 import { getClientStyle } from './lib/clients'
-import { resolveLanguage } from './i18n/language'
+import { localeForLanguage, resolveLanguage } from './i18n/language'
 import { setResolvedLanguage } from './i18n'
 
 const THEME_KEY = 'tokcat:theme:v1'
@@ -61,6 +61,7 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(() => loadSettings())
   const [settingsOpen, setSettingsOpen] = useState(false)
   const resolvedLanguage = resolveLanguage(settings.language)
+  const locale = localeForLanguage(resolvedLanguage)
 
   useEffect(() => {
     void setResolvedLanguage(resolvedLanguage)
@@ -384,7 +385,7 @@ export default function App() {
   // Push tray title from the all-agent overview, regardless of the visible tab.
   useEffect(() => {
     if (!isTauri()) return
-    const title = computeTrayTitle(settings.trayMode, overviewStats, tokensPerMin)
+    const title = computeTrayTitle(settings.trayMode, overviewStats, tokensPerMin, locale)
     ;(async () => {
       try {
         const { invoke } = await import('@tauri-apps/api/core')
@@ -393,7 +394,7 @@ export default function App() {
         // ignore
       }
     })()
-  }, [overviewStats, settings.trayMode, tokensPerMin])
+  }, [locale, overviewStats, settings.trayMode, tokensPerMin])
 
   // Push animateTray flag to backend whenever it changes (Tauri only).
   useEffect(() => {
@@ -510,8 +511,8 @@ export default function App() {
                   <UsageBarGraph2D
                     payload={payload}
                     clientIds={presentClients}
-                    title="Token Usage"
-                    subtitle="Stacked by agent"
+                    title={t('dashboard.tokenUsage')}
+                    subtitle={t('dashboard.stackedByAgent')}
                     view={usageView}
                     onViewChange={setUsageView}
                     grid={overviewGrid}
@@ -526,7 +527,7 @@ export default function App() {
                     buckets={trace}
                     windowSecs={600}
                     detailed={settings.detailedTrace}
-                    title="Live session"
+                    title={t('dashboard.liveSession')}
                   />
                   <StreaksCard longest={overviewStats.streaks.longest} current={overviewStats.streaks.current} />
                 </div>
@@ -536,14 +537,14 @@ export default function App() {
                     clients={[activeTab]}
                     trace={trace}
                     agentUsage={agentUsage.payload}
-                    title={`${getClientStyle(activeTab).displayName} limits`}
-                    note="Session / weekly / model limits"
+                    title={t('limits.title', { client: getClientStyle(activeTab).displayName })}
+                    note={t('limits.clientNote')}
                   />
                   <UsageBarGraph2D
                     payload={payload}
                     clientIds={[activeTab]}
-                    title="Token Usage"
-                    subtitle="Local token history"
+                    title={t('dashboard.tokenUsage')}
+                    subtitle={t('dashboard.localTokenHistory')}
                     view={usageView}
                     onViewChange={setUsageView}
                     grid={activeGrid}
@@ -571,13 +572,13 @@ export default function App() {
           <div className="settings-overlay" onClick={() => setAboutOpen(false)} />
           <div className="settings-panel" role="dialog">
             <div className="settings-head">
-              <strong>About Tokcat</strong>
-              <button className="settings-close" onClick={() => setAboutOpen(false)}>×</button>
+              <strong>{t('about.title')}</strong>
+              <button className="settings-close" onClick={() => setAboutOpen(false)} aria-label={t('common.close')}>×</button>
             </div>
             <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-              <div><strong>Tokcat</strong> — version {appVersion || 'unknown'}</div>
+              <div>{t('about.version', { version: appVersion || t('common.unknown') })}</div>
               <div style={{ marginTop: 8 }}>
-                Native macOS menubar dashboard for local AI token usage.
+                {t('about.description')}
               </div>
               <div style={{ marginTop: 8 }}>
                 <a

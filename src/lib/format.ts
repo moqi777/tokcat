@@ -6,11 +6,16 @@ export function humanizeTokens(n: number): string {
   return `${(n / 1_000_000_000_000).toFixed(1)}T`
 }
 
-export function formatCost(n: number): string {
-  return `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+export function formatCost(n: number, locale = 'en-US'): string {
+  return `$${new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)}`
 }
 
-const MONTHS_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+export function formatExactTokens(n: number, locale = 'en-US'): string {
+  return new Intl.NumberFormat(locale).format(n)
+}
 
 // Parse YYYY-MM-DD as local date (avoid TZ shift)
 export function parseISODate(s: string): Date {
@@ -18,16 +23,14 @@ export function parseISODate(s: string): Date {
   return new Date(y, m - 1, d)
 }
 
-export function formatMonthDay(s: string): string {
+export function formatMonthDay(s: string, locale = 'en-US'): string {
   const d = parseISODate(s)
-  return `${MONTHS_SHORT[d.getMonth()]} ${d.getDate()}`
+  return new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }).format(d)
 }
 
-export function formatMMDD(s: string): string {
+export function formatMMDD(s: string, locale = 'en-US'): string {
   const d = parseISODate(s)
-  const mm = String(d.getMonth() + 1).padStart(2, '0')
-  const dd = String(d.getDate()).padStart(2, '0')
-  return `${mm}/${dd}`
+  return new Intl.DateTimeFormat(locale, { month: '2-digit', day: '2-digit' }).format(d)
 }
 
 export function isoDate(d: Date): string {

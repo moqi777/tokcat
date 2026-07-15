@@ -4,8 +4,68 @@ import { en } from './en'
 export const zhCN: DictionaryShape<typeof en> = {
   common: {
     close: '关闭',
+    refresh: '刷新',
+    settings: '设置',
     loading: '加载中…',
     errorPrefix: '错误：{{error}}',
+    unknown: '未知',
+    fit: '适应视图',
+    reset: '重置',
+  },
+  header: {
+    tokensUsedIn: 'Token 使用于',
+    tokensUsedInYear: '年共使用',
+    theme: '主题',
+  },
+  dashboard: {
+    sections: '仪表盘分区',
+    overview: '概览',
+    tokenUsage: 'Token 用量',
+    stackedByAgent: '按 Agent 堆叠',
+    liveSession: '实时会话',
+    localTokenHistory: '本地 Token 使用记录',
+    fullYear: '全年',
+    chartView: '图表视图',
+  },
+  usage: {
+    total: '总费用',
+    tokens: 'Token',
+    activeDays_one: '活跃 {{count}} 天',
+    activeDays_other: '活跃 {{count}} 天',
+    bestDay: '使用最多的一天',
+    tokenCount: '{{count}} Token',
+  },
+  trace: {
+    title: '实时追踪',
+    summary: '最近 {{minutes}} 分钟 · 总计 {{rate}}/分钟',
+    empty: '此时间段内没有活动',
+  },
+  streaks: {
+    title: '连续使用',
+    longest: '最长连续',
+    current: '当前连续',
+    dayUnit_one: '天',
+    dayUnit_other: '天',
+  },
+  filters: {
+    label: '筛选：',
+  },
+  themes: {
+    Blue: '蓝色',
+    Purple: '紫色',
+    Pink: '粉色',
+    Orange: '橙色',
+    Green: '绿色',
+    Graphite: '石墨色',
+  },
+  about: {
+    title: '关于 Tokcat',
+    version: 'Tokcat — 版本 {{version}}',
+    description: '本地 AI Token 用量的原生 macOS 菜单栏仪表盘。',
+  },
+  limits: {
+    title: '{{client}} 额度',
+    clientNote: '会话 / 每周 / 模型额度',
   },
   settings: {
     title: '设置',

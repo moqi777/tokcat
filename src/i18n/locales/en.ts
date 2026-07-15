@@ -9,8 +9,68 @@ export type DictionaryShape<T> = {
 export const en = {
   common: {
     close: 'Close',
+    refresh: 'Refresh',
+    settings: 'Settings',
     loading: 'Loading…',
     errorPrefix: 'Error: {{error}}',
+    unknown: 'unknown',
+    fit: 'Fit',
+    reset: 'Reset',
+  },
+  header: {
+    tokensUsedIn: 'tokens used in',
+    tokensUsedInYear: 'tokens used',
+    theme: 'Theme',
+  },
+  dashboard: {
+    sections: 'Dashboard sections',
+    overview: 'Overview',
+    tokenUsage: 'Token Usage',
+    stackedByAgent: 'Stacked by agent',
+    liveSession: 'Live session',
+    localTokenHistory: 'Local token history',
+    fullYear: 'Full year',
+    chartView: 'Chart view',
+  },
+  usage: {
+    total: 'Total',
+    tokens: 'Tokens',
+    activeDays_one: '{{count}} active day',
+    activeDays_other: '{{count}} active days',
+    bestDay: 'Best day',
+    tokenCount: '{{count}} tokens',
+  },
+  trace: {
+    title: 'Live trace',
+    summary: 'last {{minutes}}m · {{rate}}/m total',
+    empty: 'No activity in this window',
+  },
+  streaks: {
+    title: 'Streaks',
+    longest: 'Longest',
+    current: 'Current',
+    dayUnit_one: 'day',
+    dayUnit_other: 'days',
+  },
+  filters: {
+    label: 'Filter:',
+  },
+  themes: {
+    Blue: 'Blue',
+    Purple: 'Purple',
+    Pink: 'Pink',
+    Orange: 'Orange',
+    Green: 'Green',
+    Graphite: 'Graphite',
+  },
+  about: {
+    title: 'About Tokcat',
+    version: 'Tokcat — version {{version}}',
+    description: 'Native macOS menubar dashboard for local AI token usage.',
+  },
+  limits: {
+    title: '{{client}} limits',
+    clientNote: 'Session / weekly / model limits',
   },
   settings: {
     title: 'Settings',

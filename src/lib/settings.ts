@@ -1,5 +1,6 @@
 import type { Stats } from './types'
 import { humanizeTokens, formatCost, isoDate } from './format'
+import { isAppLanguage, type AppLanguage } from '../i18n/language'
 
 export type TrayMode =
   | 'today_tokens'
@@ -11,6 +12,7 @@ export type TrayMode =
 export type AnimationStyle = 'cat' | 'parrot'
 
 export interface Settings {
+  language: AppLanguage
   trayMode: TrayMode
   autostart: boolean
   animateTray: boolean
@@ -25,17 +27,13 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  language: 'auto',
   trayMode: 'today_tokens',
   autostart: false,
   animateTray: true,
   animationStyle: 'cat',
   detailedTrace: false,
   cursorUsage: false,
-}
-
-export const ANIMATION_STYLE_LABELS: Record<AnimationStyle, string> = {
-  cat: 'Spinning cat',
-  parrot: 'Party parrot',
 }
 
 const KEY = 'tokcat:settings:v1'
@@ -50,6 +48,7 @@ export function loadSettings(): Settings {
     if (parsed.animationStyle === 'cube' || parsed.animationStyle === 'cat1' || parsed.animationStyle === 'cat2') {
       parsed.animationStyle = 'cat'
     }
+    if (!isAppLanguage(parsed.language)) parsed.language = 'auto'
     return { ...DEFAULT_SETTINGS, ...parsed }
   } catch {
     return DEFAULT_SETTINGS
@@ -62,13 +61,13 @@ export function saveSettings(s: Settings) {
   } catch {}
 }
 
-export const TRAY_MODE_LABELS: Record<TrayMode, string> = {
-  today_tokens: "Today's tokens (50M)",
-  today_cost: "Today's cost ($5.20)",
-  total_tokens: 'Total tokens (1.5B)',
-  total_cost: 'Total cost ($889)',
-  tokens_per_min: 'Tokens / min (12.4K/m)',
-  hidden: 'Icon only',
+export const TRAY_MODE_EXAMPLES: Record<TrayMode, string> = {
+  today_tokens: '50M',
+  today_cost: '$5.20',
+  total_tokens: '1.5B',
+  total_cost: '$889',
+  tokens_per_min: '12.4K/m',
+  hidden: '',
 }
 
 export function computeTrayTitle(

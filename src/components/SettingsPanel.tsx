@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import {
   AnimationStyle,
-  ANIMATION_STYLE_LABELS,
   Settings,
   TrayMode,
-  TRAY_MODE_LABELS,
+  TRAY_MODE_EXAMPLES,
 } from '../lib/settings'
+import { SUPPORTED_LANGUAGES } from '../i18n/language'
 import { isTauri } from '../lib/runtime'
 import { checkForUpdatesInteractive } from '../lib/updater'
 
@@ -48,6 +49,7 @@ function CheckIcon() {
 }
 
 export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
+  const { t } = useTranslation()
   const [autostartBusy, setAutostartBusy] = useState(false)
   const [version, setVersion] = useState<string>('')
   const [updateBusy, setUpdateBusy] = useState(false)
@@ -143,15 +145,39 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
       <div className="settings-overlay" onClick={onClose} />
       <div className="settings-panel" role="dialog">
         <div className="settings-head">
-          <strong>Settings</strong>
-          <button className="settings-close" onClick={onClose} aria-label="Close">
+          <strong>{t('settings.title')}</strong>
+          <button className="settings-close" onClick={onClose} aria-label={t('common.close')}>
             ×
           </button>
         </div>
 
         <div className="settings-body">
           <section className="settings-section">
-            <div className="settings-label">Menubar title</div>
+            <div className="settings-label">{t('settings.language.title')}</div>
+            <div className="settings-group">
+              {SUPPORTED_LANGUAGES.map(language => {
+                const active = settings.language === language.value
+                const label = 'nativeName' in language
+                  ? language.nativeName
+                  : t(language.labelKey)
+                return (
+                  <button
+                    key={language.value}
+                    type="button"
+                    className={`settings-row settings-row-radio${active ? ' is-active' : ''}`}
+                    onClick={() => onChange({ ...settings, language: language.value })}
+                    aria-pressed={active}
+                  >
+                    <span className="settings-row-label">{label}</span>
+                    <span className="settings-row-check">{active && <CheckIcon />}</span>
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <div className="settings-label">{t('settings.menubarTitle')}</div>
             <div className="settings-group">
               {modes.map((m, i) => {
                 const active = settings.trayMode === m
@@ -163,7 +189,9 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
                     onClick={() => onChange({ ...settings, trayMode: m })}
                     aria-pressed={active}
                   >
-                    <span className="settings-row-label">{TRAY_MODE_LABELS[m]}</span>
+                    <span className="settings-row-label">
+                      {t(`settings.trayMode.${m}`, { example: TRAY_MODE_EXAMPLES[m] })}
+                    </span>
                     <span className="settings-row-check">{active && <CheckIcon />}</span>
                   </button>
                 )
@@ -173,10 +201,10 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
 
           {tauri && (
             <section className="settings-section">
-              <div className="settings-label">Startup</div>
+              <div className="settings-label">{t('settings.startup')}</div>
               <div className="settings-group">
                 <div className="settings-row">
-                  <span className="settings-row-label">Launch at login</span>
+                  <span className="settings-row-label">{t('settings.launchAtLogin')}</span>
                   <SwitchToggle
                     checked={settings.autostart}
                     disabled={autostartBusy}
@@ -189,10 +217,10 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
 
           {tauri && (
             <section className="settings-section">
-              <div className="settings-label">Menubar icon</div>
+              <div className="settings-label">{t('settings.menubarIcon')}</div>
               <div className="settings-group">
                 <div className="settings-row">
-                  <span className="settings-row-label">Animate based on token usage</span>
+                  <span className="settings-row-label">{t('settings.animateTray')}</span>
                   <SwitchToggle
                     checked={settings.animateTray}
                     onChange={next => onChange({ ...settings, animateTray: next })}
@@ -209,7 +237,7 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
                         onClick={() => onChange({ ...settings, animationStyle: s })}
                         aria-pressed={active}
                       >
-                        <span className="settings-row-label">{ANIMATION_STYLE_LABELS[s]}</span>
+                        <span className="settings-row-label">{t(`settings.animationStyle.${s}`)}</span>
                         <span className="settings-row-check">{active && <CheckIcon />}</span>
                       </button>
                     )
@@ -219,10 +247,10 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
           )}
 
           <section className="settings-section">
-            <div className="settings-label">Live trace</div>
+            <div className="settings-label">{t('settings.liveTrace')}</div>
             <div className="settings-group">
               <div className="settings-row">
-                <span className="settings-row-label">Split by agent / model</span>
+                <span className="settings-row-label">{t('settings.splitByAgentModel')}</span>
                 <SwitchToggle
                   checked={settings.detailedTrace}
                   onChange={next => onChange({ ...settings, detailedTrace: next })}
@@ -233,10 +261,10 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
 
           {tauri && (
             <section className="settings-section">
-              <div className="settings-label">Cursor usage</div>
+              <div className="settings-label">{t('settings.cursorUsage')}</div>
               <div className="settings-group">
                 <div className="settings-row">
-                  <span className="settings-row-label">Fetch from cursor.com</span>
+                  <span className="settings-row-label">{t('settings.fetchCursor')}</span>
                   <SwitchToggle
                     checked={settings.cursorUsage}
                     onChange={next => onChange({ ...settings, cursorUsage: next })}
@@ -247,21 +275,21 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
           )}
 
           <section className="settings-section">
-            <div className="settings-label">About</div>
+            <div className="settings-label">{t('settings.about')}</div>
             <div className="settings-group">
               <div className="settings-row">
-                <span className="settings-row-label">Version</span>
+                <span className="settings-row-label">{t('settings.version')}</span>
                 <span className="settings-row-meta">{version || '—'}</span>
               </div>
               {tauri && (
                 <div className="settings-row">
-                  <span className="settings-row-label">Check for updates</span>
+                  <span className="settings-row-label">{t('settings.checkForUpdates')}</span>
                   <button
                     className="settings-button"
                     onClick={checkUpdates}
                     disabled={updateBusy}
                   >
-                    {updateBusy ? 'Checking…' : 'Check Now'}
+                    {updateBusy ? t('settings.checking') : t('settings.checkNow')}
                   </button>
                 </div>
               )}
@@ -271,7 +299,7 @@ export function SettingsPanel({ open, onClose, settings, onChange }: Props) {
           {tauri && (
             <section className="settings-section">
               <button className="settings-quit" onClick={quitApp}>
-                Quit Tokcat
+                {t('settings.quit')}
               </button>
             </section>
           )}

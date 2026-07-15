@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Panel } from './components/Panel'
 import { HeaderBar } from './components/HeaderBar'
 import { StreaksCard } from './components/StreaksCard'
@@ -17,6 +18,8 @@ import { UsageTraceCard } from './components/UsageTraceCard'
 import { checkForUpdatesSilent, checkForUpdatesInteractive } from './lib/updater'
 import { getTheme, THEMES, ThemeName } from './lib/themes'
 import { getClientStyle } from './lib/clients'
+import { resolveLanguage } from './i18n/language'
+import { setResolvedLanguage } from './i18n'
 
 const THEME_KEY = 'tokcat:theme:v1'
 const USAGE_VIEW_KEY = 'tokcat:usageview:v1'
@@ -42,6 +45,7 @@ function defaultYear(): string {
 }
 
 export default function App() {
+  const { t } = useTranslation()
   const [year, setYear] = useState<string>(defaultYear())
   const [refreshTick, setRefreshTick] = useState(0)
   const { payload, error } = useGraphStream(year)
@@ -56,6 +60,11 @@ export default function App() {
   const [usageView, setUsageView] = useState<UsageView>(() => loadUsageView())
   const [settings, setSettings] = useState<Settings>(() => loadSettings())
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const resolvedLanguage = resolveLanguage(settings.language)
+
+  useEffect(() => {
+    void setResolvedLanguage(resolvedLanguage)
+  }, [resolvedLanguage])
 
   const [aboutOpen, setAboutOpen] = useState(false)
   const [appVersion, setAppVersion] = useState('')
@@ -479,8 +488,8 @@ export default function App() {
     <div className="page" ref={pageRef}>
       <div className="page-content" ref={contentRef}>
         <Panel>
-          {!payload && !error && <div className="loading">Loading…</div>}
-          {error && <div className="error">Error: {error}</div>}
+          {!payload && !error && <div className="loading">{t('common.loading')}</div>}
+          {error && <div className="error">{t('common.errorPrefix', { error })}</div>}
           {payload && overviewStats && activeStats && (
             <>
               <HeaderBar

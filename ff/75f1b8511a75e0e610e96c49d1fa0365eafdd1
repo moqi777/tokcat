@@ -1,0 +1,25 @@
+src/i18n/index.ts
+  s_00f11816e25802::t_a15068793a1008 6-9,16
+src/lib/format.ts
+  s_00f11816e25802::t_a15068793a1008 30
+src/i18n/locales/zh-CN.ts
+  s_00f11816e25802::t_a15068793a1008 48
+src/components/HeaderBar.tsx
+  s_00f11816e25802::t_a15068793a1008 35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "ff75f1b8511a75e0e610e96c49d1fa0365eafdd1",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

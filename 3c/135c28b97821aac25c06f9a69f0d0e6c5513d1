@@ -1,0 +1,35 @@
+src/components/ContributionGraph3D.tsx
+  s_00f11816e25802::t_03dbec41e679e8 9,66-67
+src/i18n/useAppLocale.ts
+  s_00f11816e25802::t_03dbec41e679e8 1-8
+src/i18n/locales/zh-CN.ts
+  s_00f11816e25802::t_03dbec41e679e8 16-17
+src/components/TokenUsageCard.tsx
+  s_00f11816e25802::t_03dbec41e679e8 5,8-9
+src/components/UsageBarGraph2D.tsx
+  s_00f11816e25802::t_03dbec41e679e8 9,99-100
+src/components/AgentLimitsCard.tsx
+  s_00f11816e25802::t_03dbec41e679e8 8-9,35,64-65
+src/components/HeaderBar.tsx
+  s_00f11816e25802::t_03dbec41e679e8 20-21,33-34,36
+src/components/ContributionGraph2D.tsx
+  s_00f11816e25802::t_03dbec41e679e8 5,13-14
+src/i18n/locales/en.ts
+  s_00f11816e25802::t_03dbec41e679e8 21-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "3c135c28b97821aac25c06f9a69f0d0e6c5513d1",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}

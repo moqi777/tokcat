@@ -32,7 +32,7 @@ export function HeaderBar({ totalTokens, year, years, onYearChange, theme, onThe
         <img className="brand-logo" src="/tokcat-logo.png" alt="" aria-hidden="true" data-tauri-drag-region />
         <div className="header-title" data-tauri-drag-region>
           {language === 'zh-CN' ? (
-            <>{yearSelect}<span className="header-text" data-tauri-drag-region> {t('header.tokensUsedInYear')} </span>{tokenValue}<span className="header-text"> Token</span></>
+            <>{yearSelect}<span className="header-text" data-tauri-drag-region> {t('header.tokensUsedInYear')} </span>{tokenValue}<span className="header-text" data-tauri-drag-region> Token</span></>
           ) : (
             <>{tokenValue}<span className="header-text" data-tauri-drag-region> {t('header.tokensUsedIn')} </span>{yearSelect}</>
           )}

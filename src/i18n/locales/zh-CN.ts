@@ -45,7 +45,7 @@ export const zhCN: DictionaryShape<typeof en> = {
     empty: '此时间段内没有活动',
   },
   streaks: {
-    title: '连续使用',
+    title: '连续活跃',
     longest: '最长连续',
     current: '当前连续',
     dayUnit_one: '天',

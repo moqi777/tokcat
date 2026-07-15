@@ -27,6 +27,7 @@ export function formatCurrencyMinorUnits(
     return new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: code,
+      currencyDisplay: 'narrowSymbol',
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(value / 100)

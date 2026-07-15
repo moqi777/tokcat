@@ -1,6 +1,8 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import type { GridLayout } from '../lib/grid'
 import { formatCost, formatMonthDay, humanizeTokens } from '../lib/format'
+import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
 
 interface Props {
   grid: GridLayout
@@ -8,6 +10,9 @@ interface Props {
 }
 
 export function ContributionGraph2D({ grid, colorRgb = '37, 99, 235' }: Props) {
+  const { t, i18n } = useTranslation()
+  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
+  const locale = localeForLanguage(language)
   const cellSize = 12
   const gap = 3
   const width = grid.cols * (cellSize + gap)
@@ -30,7 +35,11 @@ export function ContributionGraph2D({ grid, colorRgb = '37, 99, 235' }: Props) {
           return (
             <rect key={i} x={x} y={y} width={cellSize} height={cellSize} rx={2} fill={fill}>
               {c.active && (
-                <title>{`${formatMonthDay(c.date)} • ${humanizeTokens(c.tokens)} • ${formatCost(c.cost)}`}</title>
+                <title>{t('charts.dataPoint', {
+                  date: formatMonthDay(c.date, locale),
+                  tokens: t('usage.tokenCount', { count: humanizeTokens(c.tokens) }),
+                  cost: formatCost(c.cost, locale),
+                })}</title>
               )}
             </rect>
           )

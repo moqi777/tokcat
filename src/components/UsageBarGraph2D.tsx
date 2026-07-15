@@ -1,10 +1,12 @@
 import React, { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { getClientStyle } from '../lib/clients'
-import { addDays, formatCost, formatMonthDay, isoDate, parseISODate } from '../lib/format'
+import { addDays, formatCost, formatExactTokens, formatMonthDay, isoDate, parseISODate } from '../lib/format'
 import type { Contribution, Stats, TokenBreakdown, UsagePayload } from '../lib/types'
 import type { GridLayout } from '../lib/grid'
 import { ContributionGraph3D } from './ContributionGraph3D'
 import { TokenUsageCard } from './TokenUsageCard'
+import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
 
 export type UsageView = '2d' | '3d'
 
@@ -80,10 +82,6 @@ function dayFromContribution(contribution: Contribution, allowed: Set<string>): 
   }
 }
 
-function exactTokens(tokens: number): string {
-  return tokens.toLocaleString('en-US')
-}
-
 export function UsageBarGraph2D({
   payload,
   clientIds,
@@ -98,8 +96,11 @@ export function UsageBarGraph2D({
   stats,
   kbdHints,
 }: Props) {
+  const { t, i18n } = useTranslation()
+  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
+  const locale = localeForLanguage(language)
   const [hover, setHover] = useState<HoverState | null>(null)
-  const headSubtitle = stats && view === '3d' ? 'Full year' : subtitle
+  const headSubtitle = stats && view === '3d' ? t('dashboard.fullYear') : subtitle
   const bars = useMemo(() => {
     const allowed = new Set(clientIds)
     const byDate = new Map<string, DayBar>()
@@ -161,7 +162,7 @@ export function UsageBarGraph2D({
           {headSubtitle && <div className="bar2d-sub">{headSubtitle}</div>}
         </div>
         <div className="bar2d-head-right">
-          <div className="bar2d-viewtoggle" role="group" aria-label="Chart view">
+          <div className="bar2d-viewtoggle" role="group" aria-label={t('dashboard.chartView')}>
             {kbdHints && <span className="kbd-pin kbd-pin-toggle" aria-hidden="true">⌘G</span>}
             <button
               type="button"
@@ -230,7 +231,12 @@ export function UsageBarGraph2D({
                       opacity={0.86}
                     >
                       <title>
-                        {`${formatMonthDay(bar.date)} • ${getClientStyle(segment.clientId).displayName} • ${exactTokens(segment.tokens)} tokens • ${formatCost(segment.cost)}`}
+                        {t('charts.segmentPoint', {
+                          date: formatMonthDay(bar.date, locale),
+                          client: getClientStyle(segment.clientId).displayName,
+                          tokens: t('usage.tokenCount', { count: formatExactTokens(segment.tokens, locale) }),
+                          cost: formatCost(segment.cost, locale),
+                        })}
                       </title>
                     </rect>
                   )
@@ -247,7 +253,11 @@ export function UsageBarGraph2D({
                     height={chartHeight}
                     tabIndex={0}
                     role="img"
-                    aria-label={`${formatMonthDay(bar.date)}, ${exactTokens(bar.totalTokens)} tokens, ${formatCost(bar.totalCost)}`}
+                    aria-label={t('charts.dataPoint', {
+                      date: formatMonthDay(bar.date, locale),
+                      tokens: t('usage.tokenCount', { count: formatExactTokens(bar.totalTokens, locale) }),
+                      cost: formatCost(bar.totalCost, locale),
+                    })}
                     onMouseEnter={() => showTooltip(bar, index)}
                     onMouseMove={() => showTooltip(bar, index)}
                     onFocus={() => showTooltip(bar, index)}
@@ -257,9 +267,9 @@ export function UsageBarGraph2D({
               </g>
             )
           })}
-          <text x="0" y={height - 6} className="bar2d-label">{formatMonthDay(bars[0]?.date ?? '')}</text>
+          <text x="0" y={height - 6} className="bar2d-label">{formatMonthDay(bars[0]?.date ?? '', locale)}</text>
           <text x={width} y={height - 6} textAnchor="end" className="bar2d-label">
-            {formatMonthDay(bars[bars.length - 1]?.date ?? '')}
+            {formatMonthDay(bars[bars.length - 1]?.date ?? '', locale)}
           </text>
         </svg>
         {hover && (
@@ -268,10 +278,10 @@ export function UsageBarGraph2D({
             style={{ left: hover.left, top: hover.top, transform: hover.transform }}
             role="status"
           >
-            <div className="bar2d-tooltip-date">{formatMonthDay(hover.bar.date)}</div>
+            <div className="bar2d-tooltip-date">{formatMonthDay(hover.bar.date, locale)}</div>
             <div className="bar2d-tooltip-total">
-              <span>{exactTokens(hover.bar.totalTokens)} tokens</span>
-              <span>{formatCost(hover.bar.totalCost)}</span>
+              <span>{t('usage.tokenCount', { count: formatExactTokens(hover.bar.totalTokens, locale) })}</span>
+              <span>{formatCost(hover.bar.totalCost, locale)}</span>
             </div>
             <div className="bar2d-tooltip-rows">
               {hover.bar.segments.map(segment => {
@@ -283,7 +293,7 @@ export function UsageBarGraph2D({
                       {style.displayName.replace(/\s+(CLI|Code|IDE)$/i, '')}
                     </span>
                     <span className="bar2d-tooltip-value">
-                      {exactTokens(segment.tokens)} · {formatCost(segment.cost)}
+                      {formatExactTokens(segment.tokens, locale)} · {formatCost(segment.cost, locale)}
                     </span>
                   </div>
                 )

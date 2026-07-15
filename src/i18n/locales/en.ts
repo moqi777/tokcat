@@ -32,6 +32,10 @@ export const en = {
     fullYear: 'Full year',
     chartView: 'Chart view',
   },
+  charts: {
+    dataPoint: '{{date}}, {{tokens}}, {{cost}}',
+    segmentPoint: '{{date}} • {{client}} • {{tokens}} • {{cost}}',
+  },
   usage: {
     total: 'Total',
     tokens: 'Tokens',
@@ -71,6 +75,14 @@ export const en = {
   limits: {
     title: '{{client}} limits',
     clientNote: 'Session / weekly / model limits',
+  },
+  updater: {
+    availableTitle: 'Update available',
+    availablePrompt: 'Tokcat {{version}} is available.{{notes}}\n\nInstall and restart now?',
+    install: 'Install',
+    later: 'Later',
+    checkFailedTitle: 'Update check failed',
+    latest: "You're on the latest version.",
   },
   settings: {
     title: 'Settings',

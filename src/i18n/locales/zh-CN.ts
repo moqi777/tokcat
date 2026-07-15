@@ -27,6 +27,10 @@ export const zhCN: DictionaryShape<typeof en> = {
     fullYear: '全年',
     chartView: '图表视图',
   },
+  charts: {
+    dataPoint: '{{date}}，{{tokens}}，{{cost}}',
+    segmentPoint: '{{date}} • {{client}} • {{tokens}} • {{cost}}',
+  },
   usage: {
     total: '总费用',
     tokens: 'Token',
@@ -66,6 +70,14 @@ export const zhCN: DictionaryShape<typeof en> = {
   limits: {
     title: '{{client}} 额度',
     clientNote: '会话 / 每周 / 模型额度',
+  },
+  updater: {
+    availableTitle: '有可用更新',
+    availablePrompt: 'Tokcat {{version}} 已发布。{{notes}}\n\n是否立即安装并重启？',
+    install: '安装',
+    later: '稍后',
+    checkFailedTitle: '检查更新失败',
+    latest: '当前已是最新版本。',
   },
   settings: {
     title: '设置',

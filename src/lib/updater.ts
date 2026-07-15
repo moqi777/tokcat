@@ -1,4 +1,5 @@
 import { isTauri } from './runtime'
+import i18n from '../i18n'
 
 // While a system dialog (ask/message) is up, the menubar window's
 // blur-to-hide handler must not run — otherwise the dialog stealing
@@ -25,15 +26,15 @@ async function applyUpdate(update: any) {
 
 async function promptInstall(update: any): Promise<boolean> {
   const { ask } = await import('@tauri-apps/plugin-dialog')
-  const body = update.body ? `\n\n${update.body}` : ''
+  const notes = update.body ? `\n\n${update.body}` : ''
   return withDialogShield(() =>
     ask(
-      `Tokcat ${update.version} is available.${body}\n\nInstall and restart now?`,
+      i18n.t('updater.availablePrompt', { version: update.version, notes }),
       {
-        title: 'Update available',
+        title: i18n.t('updater.availableTitle'),
         kind: 'info',
-        okLabel: 'Install',
-        cancelLabel: 'Later',
+        okLabel: i18n.t('updater.install'),
+        cancelLabel: i18n.t('updater.later'),
       },
     ),
   )
@@ -60,13 +61,13 @@ export async function checkForUpdatesInteractive(): Promise<void> {
     update = await check()
   } catch (e) {
     await withDialogShield(() =>
-      message(String(e), { title: 'Update check failed', kind: 'error' }),
+      message(String(e), { title: i18n.t('updater.checkFailedTitle'), kind: 'error' }),
     )
     return
   }
   if (!update) {
     await withDialogShield(() =>
-      message("You're on the latest version.", { title: 'Tokcat', kind: 'info' }),
+      message(i18n.t('updater.latest'), { title: 'Tokcat', kind: 'info' }),
     )
     return
   }

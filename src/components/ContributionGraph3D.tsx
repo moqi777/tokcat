@@ -1,10 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { Canvas, useThree } from '@react-three/fiber'
 import { OrthographicCamera, OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import type { GridLayout } from '../lib/grid'
 import { formatCost, formatMonthDay, humanizeTokens } from '../lib/format'
+import { localeForLanguage, type ResolvedLanguage } from '../i18n/language'
 
 interface Props {
   grid: GridLayout
@@ -61,6 +63,9 @@ function saveCam(s: CamState) {
 }
 
 export function ContributionGraph3D({ grid, activeLight = '#bfdbfe', activeDark = '#1e3a8a', accent = '#2563eb' }: Props) {
+  const { t, i18n } = useTranslation()
+  const language: ResolvedLanguage = i18n.resolvedLanguage === 'zh-CN' ? 'zh-CN' : 'en'
+  const locale = localeForLanguage(language)
   const [hover, setHover] = useState<HoverInfo | null>(null)
   const wrapRef = useRef<HTMLDivElement | null>(null)
   const controlsRef = useRef<any | null>(null)
@@ -292,9 +297,9 @@ export function ContributionGraph3D({ grid, activeLight = '#bfdbfe', activeDark 
             className="graph-tooltip"
             style={{ left: hover.x + 12, top: hover.y + 12 }}
           >
-            <div className="tt-date">{formatMonthDay(hover.date)}</div>
-            <div className="tt-line">{humanizeTokens(hover.tokens)} tokens</div>
-            <div className="tt-line">{formatCost(hover.cost)}</div>
+            <div className="tt-date">{formatMonthDay(hover.date, locale)}</div>
+            <div className="tt-line">{t('usage.tokenCount', { count: humanizeTokens(hover.tokens) })}</div>
+            <div className="tt-line">{formatCost(hover.cost, locale)}</div>
           </div>,
           document.body,
         )}
@@ -319,7 +324,7 @@ export function ContributionGraph3D({ grid, activeLight = '#bfdbfe', activeDark 
             fontWeight: 600,
           }}
         >
-          Fit
+          {t('common.fit')}
         </button>
         <button
           onClick={() => {
@@ -337,7 +342,7 @@ export function ContributionGraph3D({ grid, activeLight = '#bfdbfe', activeDark 
             fontSize: 11,
           }}
         >
-          Reset
+          {t('common.reset')}
         </button>
       </div>
     </div>

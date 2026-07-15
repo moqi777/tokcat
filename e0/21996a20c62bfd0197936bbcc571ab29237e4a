@@ -1,0 +1,19 @@
+README.md
+  s_00f11816e25802::t_758c7cc987e038 109,139,171,262-264
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.4.11",
+  "base_commit_sha": "e021996a20c62bfd0197936bbcc571ab29237e4a",
+  "prompts": {},
+  "sessions": {
+    "s_00f11816e25802": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f66ae-f0fa-7dc3-97ff-88b2674ff541",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "moqing <moqing@tsign.cn>"
+    }
+  }
+}
